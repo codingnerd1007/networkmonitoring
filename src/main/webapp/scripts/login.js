@@ -1,0 +1,6 @@
+var loginManager = {
+    init : function ()
+    {
+
+    }
+}

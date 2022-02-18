@@ -6,12 +6,17 @@ import org.quartz.impl.StdSchedulerFactory;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-public class PollingListener implements ServletContextListener {
+public class PollingListener implements ServletContextListener
+{
 
     @Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) {
+    public void contextInitialized(ServletContextEvent servletContextEvent)
+    {
 
-        try {
+        try
+        {
+
+
             SchedulerFactory schedulerFactory = new StdSchedulerFactory();
             Scheduler scheduler = schedulerFactory.getScheduler();
             scheduler.start();
@@ -29,13 +34,15 @@ public class PollingListener implements ServletContextListener {
                     .build();
 
             scheduler.scheduleJob(job, trigger);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+    public void contextDestroyed(ServletContextEvent servletContextEvent)
+    {
 
     }
 }

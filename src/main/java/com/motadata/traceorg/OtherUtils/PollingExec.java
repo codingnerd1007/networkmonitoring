@@ -12,7 +12,8 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class PollingExec implements Runnable {
+public class PollingExec implements Runnable
+{
     private static final SimpleDateFormat sdf3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
     private Statement st;
@@ -23,7 +24,8 @@ public class PollingExec implements Runnable {
     String deviceTag;
     String status;
 
-    public PollingExec(String deviceName, String deviceIP, String deviceType, String deviceTag, String status) {
+    public PollingExec(String deviceName, String deviceIP, String deviceType, String deviceTag, String status)
+    {
         this.deviceName = deviceName;
         this.deviceIP = deviceIP;
         this.deviceType = deviceType;
@@ -32,14 +34,17 @@ public class PollingExec implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         String toPrint = deviceTag;
         System.out.println("threadInfo: " + toPrint);
-        try {
+        try
+        {
 //            Statement st;
             int value;
 //            Connection con,con1,con2;
-            if (deviceTag.equalsIgnoreCase("ping")) {
+            if (deviceTag.equalsIgnoreCase("ping"))
+            {
                 ArrayList<String> commandList = new ArrayList<String>();
 
                 commandList.add("ping");
@@ -55,12 +60,14 @@ public class PollingExec implements Runnable {
                 String s = null;
                 String finalString = "";
                 String outcome = "";
-                while ((s = input.readLine()) != null) {
+                while ((s = input.readLine()) != null)
+                {
 //                finalString += s + "\n";
                     char elementAtIndexOne = s.charAt(0);
                     char elementToCompareWith = '5';
 
-                    if (elementAtIndexOne == elementToCompareWith) {
+                    if (elementAtIndexOne == elementToCompareWith)
+                    {
                         int startIndex = (s.lastIndexOf(',') + 2);
                         int endIndex = s.lastIndexOf('p') - 2;
                         outcome = s.substring(startIndex, endIndex);
@@ -71,7 +78,7 @@ public class PollingExec implements Runnable {
 
                 //code for dumping the data starts here
                 populateCon = getSqlConnectionObj.getCon();
-                String sql="INSERT INTO DataDump(deviceIP,metric,value,timestamp) VALUES('"+deviceIP+"','"+deviceTag+"','"+pingResultInString+"','"+sdf3.format(new Timestamp(System.currentTimeMillis()))+"')";
+                String sql = "INSERT INTO DataDump(deviceIP,metric,value,timestamp) VALUES('" + deviceIP + "','" + deviceTag + "','" + pingResultInString + "','" + sdf3.format(new Timestamp(System.currentTimeMillis())) + "')";
                 PreparedStatement ps = populateCon.prepareStatement(sql);
                 ps.executeUpdate(sql);
 //                st = populateCon.createStatement();
@@ -92,10 +99,11 @@ public class PollingExec implements Runnable {
                 //code for dumping the data ends here
 
 
-                if (pingResult < 100) {
-                    if(populateCon==null)
-                    populateCon = getSqlConnectionObj.getCon();
-                    sql="UPDATE Monitors SET status='up' WHERE deviceIP='"+deviceIP+"'";
+                if (pingResult < 100)
+                {
+                    if (populateCon == null)
+                        populateCon = getSqlConnectionObj.getCon();
+                    sql = "UPDATE Monitors SET status='up' WHERE deviceIP='" + deviceIP + "'";
                     ps = populateCon.prepareStatement(sql);
                     ps.executeUpdate(sql);
 //                    st = populateCon.createStatement();
@@ -104,10 +112,11 @@ public class PollingExec implements Runnable {
 //                                    + "WHERE deviceIP='" + deviceIP + "'");
 //
 
-                } else if (pingResult == 100) {
-                    if(populateCon==null)
-                    populateCon = getSqlConnectionObj.getCon();
-                    sql="UPDATE Monitors SET status='down' WHERE deviceIP='"+deviceIP+"'";
+                } else if (pingResult == 100)
+                {
+                    if (populateCon == null)
+                        populateCon = getSqlConnectionObj.getCon();
+                    sql = "UPDATE Monitors SET status='down' WHERE deviceIP='" + deviceIP + "'";
                     ps = populateCon.prepareStatement(sql);
                     ps.executeUpdate(sql);
 //                    st = populateCon.createStatement();
@@ -116,23 +125,26 @@ public class PollingExec implements Runnable {
 //                                    + "WHERE deviceIP='" + deviceIP + "'");
 
                 }
-            } else if (deviceTag.equalsIgnoreCase("ssh")) {
+            } else if (deviceTag.equalsIgnoreCase("ssh"))
+            {
                 String user = "";
                 String password = "";
 //                Connection populateCon = null;
                 ResultSet rs = null;
 //            retrieve credentials
 
-                if(populateCon==null)
-                populateCon = getSqlConnectionObj.getCon();
+                if (populateCon == null)
+                    populateCon = getSqlConnectionObj.getCon();
 
                 String sql = "SELECT userName,password FROM CredentialsSSH WHERE deviceIP='" + deviceIP + "' and deviceTag='" + deviceTag + "';";
                 PreparedStatement ps = populateCon.prepareStatement(sql);
                 rs = ps.executeQuery(sql);
 
 
-                if (rs != null) {
-                    while (rs.next()) {
+                if (rs != null)
+                {
+                    while (rs.next())
+                    {
                         user = rs.getString("userName");
                         password = rs.getString("password");
 
@@ -162,18 +174,21 @@ public class PollingExec implements Runnable {
 
                 session.connect(10000);
                 boolean valueAgain = session.isConnected();
-                if (valueAgain) {
+                if (valueAgain)
+                {
                     channel = (ChannelExec) session.openChannel("exec");
                     channel.setCommand(command);
                     ByteArrayOutputStream responseStream = new ByteArrayOutputStream();
                     channel.setOutputStream(responseStream);
                     channel.connect();
-                    if (channel.isConnected()) {
+                    if (channel.isConnected())
+                    {
                         Thread.sleep(100);
 //                    channel.disconnect();
                     }
                     responseString = new String(responseStream.toByteArray());
-                    if (responseString != null) {
+                    if (responseString != null)
+                    {
                         splitString = responseString.split("\n");
                         secondRow = splitString[1];
                         allValues = secondRow.split(" +");
@@ -181,15 +196,17 @@ public class PollingExec implements Runnable {
                         freeRam = allValues[3];
                         toInsert = totalRam + "_" + freeRam;
                     }
-                } else {
+                } else
+                {
                     System.out.println("we r in else part");
                 }
 
-                if (responseString != null) {
-                    if(populateCon==null)
-                    populateCon = getSqlConnectionObj.getCon();
+                if (responseString != null)
+                {
+                    if (populateCon == null)
+                        populateCon = getSqlConnectionObj.getCon();
 
-                    sql="UPDATE Monitors SET status='up' WHERE deviceIP='"+host+"'";
+                    sql = "UPDATE Monitors SET status='up' WHERE deviceIP='" + host + "'";
                     ps = populateCon.prepareStatement(sql);
                     ps.executeUpdate(sql);
 
@@ -200,10 +217,10 @@ public class PollingExec implements Runnable {
 //                            );
 
                     //code foe dumping data begins
-                    if(populateCon==null)
-                    populateCon = getSqlConnectionObj.getCon();
+                    if (populateCon == null)
+                        populateCon = getSqlConnectionObj.getCon();
 
-                    sql="INSERT INTO DataDump(deviceIP,metric,value,timestamp) VALUES('"+deviceIP+"','"+deviceTag+"','"+toInsert+"','"+sdf3.format(new Timestamp(System.currentTimeMillis()))+"')";
+                    sql = "INSERT INTO DataDump(deviceIP,metric,value,timestamp) VALUES('" + deviceIP + "','" + deviceTag + "','" + toInsert + "','" + sdf3.format(new Timestamp(System.currentTimeMillis())) + "')";
                     ps = populateCon.prepareStatement(sql);
                     ps.executeUpdate(sql);
 //
@@ -222,10 +239,11 @@ public class PollingExec implements Runnable {
 //                                    "')");
 
                     //code for dumping data ends
-                } else if (responseString == null) {
-                    if(populateCon==null)
-                    populateCon = getSqlConnectionObj.getCon();
-                    sql="UPDATE Monitors SET status='down' WHERE deviceIP='"+host+"'";
+                } else if (responseString == null)
+                {
+                    if (populateCon == null)
+                        populateCon = getSqlConnectionObj.getCon();
+                    sql = "UPDATE Monitors SET status='down' WHERE deviceIP='" + host + "'";
                     ps = populateCon.prepareStatement(sql);
                     ps.executeUpdate(sql);
 //                    st = populateCon.createStatement();
@@ -235,10 +253,10 @@ public class PollingExec implements Runnable {
 //                            );
 
                     //code foe dumping data begins
-                    if(populateCon==null)
-                    populateCon = getSqlConnectionObj.getCon();
+                    if (populateCon == null)
+                        populateCon = getSqlConnectionObj.getCon();
 
-                    sql="INSERT INTO DataDump(deviceIP,metric,value,timestamp) VALUES('"+deviceIP+"','"+deviceTag+"','"+responseString+"','"+sdf3.format(new Timestamp(System.currentTimeMillis()))+"')";
+                    sql = "INSERT INTO DataDump(deviceIP,metric,value,timestamp) VALUES('" + deviceIP + "','" + deviceTag + "','" + responseString + "','" + sdf3.format(new Timestamp(System.currentTimeMillis())) + "')";
                     ps = populateCon.prepareStatement(sql);
                     ps.executeUpdate(sql);
 
@@ -260,17 +278,23 @@ public class PollingExec implements Runnable {
 
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             e.printStackTrace();
-        } finally {
-            try {
-                if (st != null) {
+        } finally
+        {
+            try
+            {
+                if (st != null)
+                {
                     st.close();
                 }
-                if (populateCon != null) {
+                if (populateCon != null)
+                {
                     populateCon.close();
                 }
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }

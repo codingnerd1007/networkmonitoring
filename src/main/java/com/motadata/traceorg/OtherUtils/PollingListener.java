@@ -12,6 +12,9 @@ public class PollingListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 
         try {
+
+            PollingUtil.initPollingThreads();
+
             SchedulerFactory schedulerFactory = new StdSchedulerFactory();
             Scheduler scheduler = schedulerFactory.getScheduler();
             scheduler.start();

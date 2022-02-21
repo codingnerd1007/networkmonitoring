@@ -7,14 +7,13 @@ import com.motadata.traceorg.bean.NmsBeanMonitorStatus;
 import com.motadata.traceorg.dao.GetSqlConnection;
 import com.opensymphony.xwork2.ActionSupport;
 
-
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RunDiscoveryOptions extends ActionSupport {
-    ResultSet rs = null;
+    ResultSet resultsetObj = null;
     NmsBeanMonitorStatus bean = null;
     List<NmsBeanMonitorStatus> beanList = null;
     Connection populateCon=null;
@@ -96,30 +95,21 @@ public class RunDiscoveryOptions extends ActionSupport {
 
         }
 
-        Statement st = null;
         try {
 
             String sql = "DELETE FROM AddedDevices WHERE deviceIP='"+entryToDelete+"'";
-            PreparedStatement ps = populateCon.prepareStatement(sql);
-            ps.executeUpdate(sql);
-//
-//            st = populateCon.createStatement();
-//            String sql = "DELETE FROM AddedDevices WHERE deviceIP='" + entryToDelete + "'";
-//            int value = st
-//                    .executeUpdate(sql);
+            PreparedStatement preparedStatementObj = populateCon.prepareStatement(sql);
+            preparedStatementObj.executeUpdate(sql);
+
         } catch (SQLException ex) {
             System.out.println("SQL statement is not executed!" + ex);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (st != null) {
-                st.close();
-            }
             if (populateCon != null) {
                 populateCon.close();
             }
         }
-
 
         return SUCCESS;
     }
@@ -135,14 +125,14 @@ public class RunDiscoveryOptions extends ActionSupport {
 
             ProcessBuilder build = new ProcessBuilder(commandList);
             Process process = build.start();
-            // to read the output
+
             BufferedReader input = new BufferedReader(new InputStreamReader
                     (process.getInputStream()));
             String s = null;
-            String finalString = "";
+
             String outcome = null;
             while ((s = input.readLine()) != null) {
-//                finalString += s + "\n";
+
                 char elementAtIndexOne=s.charAt(0);
                 char elementToCompareWith='5';
 
@@ -152,7 +142,7 @@ public class RunDiscoveryOptions extends ActionSupport {
                     outcome = s.substring(startIndex, endIndex);
                 }
             }
-            String pingResultInString=outcome.trim();
+
             int pingResult = Integer.parseInt(outcome.trim());
             if (pingResult==100){
                 inputStream=new ByteArrayInputStream("The Device Is Not Pingable".getBytes());
@@ -162,28 +152,12 @@ public class RunDiscoveryOptions extends ActionSupport {
                 GetSqlConnection getSqlConnectionObj=new GetSqlConnection();
                 Connection con = getSqlConnectionObj.getCon();
 
-                Statement st = null;
                 try {
 
                     String sql="INSERT INTO Monitors(deviceName,deviceIP,deviceType,deviceTag,status) VALUES('"+deviceName+"','"+deviceIP+"','"+deviceType+"','"+deviceTag+"','"+"unknown"+"')";
-                    PreparedStatement ps = con.prepareStatement(sql);
-                    ps.executeUpdate(sql);
+                    PreparedStatement preparedStatementObj = con.prepareStatement(sql);
+                    preparedStatementObj.executeUpdate(sql);
 
-//                    st = con.createStatement();
-//                    int value = st
-//                            .executeUpdate("INSERT INTO Monitors(deviceName,deviceIP,deviceType,deviceTag,status)"
-//                                    + "VALUES('"
-//                                    + deviceName
-//                                    + "','"
-//                                    + deviceIP
-//                                    + "','"
-//                                    + deviceType
-//                                    + "','"
-//                                    + deviceTag
-//                                    + "','"
-//                                    + "unknown"
-//                                    +
-//                                    "')");
                 } catch (SQLException ex) {
                     System.out.println("Run discovery ping"+ ex.getMessage());
                 }
@@ -191,9 +165,7 @@ public class RunDiscoveryOptions extends ActionSupport {
                     System.out.println("Run Discovery exception"+ ex1.getMessage());
                 }
                 finally {
-                    if (st != null) {
-                        st.close();
-                    }
+
                     if (con != null) {
                         con.close();
                     }
@@ -205,7 +177,7 @@ public class RunDiscoveryOptions extends ActionSupport {
         else if (deviceTag.equalsIgnoreCase("ssh")){
             String user="";
             String password="";
-//            retrieve credentials
+
 
 
             try {
@@ -220,8 +192,8 @@ public class RunDiscoveryOptions extends ActionSupport {
 
             try {
                 String sql = "SELECT userName,password FROM CredentialsSSH WHERE deviceIP='"+deviceIP+"' and deviceTag='"+deviceTag+"';";
-                PreparedStatement ps = populateCon.prepareStatement(sql);
-                rs = ps.executeQuery(sql);
+                PreparedStatement preparedStatementObj = populateCon.prepareStatement(sql);
+                resultsetObj = preparedStatementObj.executeQuery(sql);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -230,10 +202,10 @@ public class RunDiscoveryOptions extends ActionSupport {
 
             try {
 
-                if (rs != null) {
-                    while (rs.next()) {
-                        user=rs.getString("userName");
-                        password=rs.getString("password");
+                if (resultsetObj != null) {
+                    while (resultsetObj.next()) {
+                        user=resultsetObj.getString("userName");
+                        password=resultsetObj.getString("password");
 
                     }
                 }
@@ -246,14 +218,10 @@ public class RunDiscoveryOptions extends ActionSupport {
                 }
             }
 
-
-//            credentials end
-
             String host = deviceIP;
             String command="uname";
             String responseString=null;
             int port = 22;
-            boolean coonectionStatus=false;
             Session session=null;
             ChannelExec channel=null;
             try {
@@ -272,13 +240,12 @@ public class RunDiscoveryOptions extends ActionSupport {
                 if(channel.isConnected())
                 {
                     Thread.sleep(100);
-//                    channel.disconnect();
+
                 }
                 responseString = new String(responseStream.toByteArray());
             }
             catch (Exception e){
                 e.printStackTrace();
-                String response = e.getMessage();
             }
             finally {
                 if (session != null) {
@@ -293,37 +260,17 @@ public class RunDiscoveryOptions extends ActionSupport {
                     GetSqlConnection getSqlConnectionObj=new GetSqlConnection();
                     Connection con = getSqlConnectionObj.getCon();
 
-
-                    Statement st = null;
                     try {
 
                         String sql="INSERT INTO Monitors(deviceName,deviceIP,deviceType,deviceTag,status) VALUES('"+deviceName+"','"+deviceIP+"','"+deviceType+"','"+deviceTag+"','"+"unknown"+"')";
-                        PreparedStatement ps = con.prepareStatement(sql);
-                        ps.executeUpdate(sql);
+                        PreparedStatement preparedStatementObj = con.prepareStatement(sql);
+                        preparedStatementObj.executeUpdate(sql);
 
-//                        st = con.createStatement();
-//                        int value = st
-//                                .executeUpdate("INSERT INTO Monitors(deviceName,deviceIP,deviceType,deviceTag,status)"
-//                                        + "VALUES('"
-//                                        + deviceName
-//                                        + "','"
-//                                        + deviceIP
-//                                        + "','"
-//                                        + deviceType
-//                                        + "','"
-//                                        + deviceTag
-//                                        + "','"
-//                                        + "unknown"
-//                                        +
-//                                        "')");
                     } catch (SQLException ex) {
                         System.out.println("SQL statement is not executed!" + ex.getMessage());
                     } catch (Exception e) {
                         System.out.println("SSH run discovery error" + e.getMessage());
                     } finally {
-                        if (st != null) {
-                            st.close();
-                        }
                         if (con != null) {
                             con.close();
                         }
@@ -341,17 +288,12 @@ public class RunDiscoveryOptions extends ActionSupport {
                 return SUCCESS;
             }
         }
-
-
-
         return SUCCESS;
     }
 
     public String refreshMonitorGrid() throws Exception{
         /*
-
             updating UI using DB
-
          */
 
         try {
@@ -364,8 +306,8 @@ public class RunDiscoveryOptions extends ActionSupport {
 
         try {
             String sql = "SELECT deviceName,deviceIP,deviceType,deviceTag,status FROM Monitors";
-            PreparedStatement ps = populateCon.prepareStatement(sql);
-            rs = ps.executeQuery(sql);
+            PreparedStatement preparedStatementObj = populateCon.prepareStatement(sql);
+            resultsetObj = preparedStatementObj.executeQuery(sql);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -375,14 +317,14 @@ public class RunDiscoveryOptions extends ActionSupport {
         try {
             beanList = new ArrayList<NmsBeanMonitorStatus>();
 
-            if (rs != null) {
-                while (rs.next()) {
+            if (resultsetObj != null) {
+                while (resultsetObj.next()) {
                     bean = new NmsBeanMonitorStatus();
-                    bean.setDeviceName(rs.getString("deviceName"));
-                    bean.setDeviceIP(rs.getString("deviceIP"));
-                    bean.setDeviceType(rs.getString("deviceType"));
-                    bean.setDeviceTag(rs.getString("deviceTag"));
-                    bean.setStatus(rs.getString("status"));
+                    bean.setDeviceName(resultsetObj.getString("deviceName"));
+                    bean.setDeviceIP(resultsetObj.getString("deviceIP"));
+                    bean.setDeviceType(resultsetObj.getString("deviceType"));
+                    bean.setDeviceTag(resultsetObj.getString("deviceTag"));
+                    bean.setStatus(resultsetObj.getString("status"));
                     beanList.add(bean);
                 }
             }
@@ -394,8 +336,6 @@ public class RunDiscoveryOptions extends ActionSupport {
                 populateCon.close();
             }
         }
-
-
         return SUCCESS;
     }
 }

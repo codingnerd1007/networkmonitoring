@@ -1,6 +1,0 @@
-var loginManager = {
-    init : function ()
-    {
-
-    }
-}

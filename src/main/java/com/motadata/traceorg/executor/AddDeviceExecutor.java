@@ -12,29 +12,17 @@ import java.sql.Statement;
 
 public class AddDeviceExecutor extends ActionSupport {
     GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
-    public InputStream addDevice(String deviceName, String deviceIP, String deviceType, String deviceTag) throws Exception {
-//        GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
-        Connection con = getSqlConnectionObj.getCon();
+    public InputStream addDevice(String deviceName, String deviceIP, String deviceType, String deviceTag) {
 
-        Statement st = null;
+        Connection con = null;
+
         String response = null;
         try {
+            con = getSqlConnectionObj.getCon();
                 String sql="INSERT INTO AddedDevices(deviceName,deviceIP,deviceType,deviceTag) VALUES('"+deviceName+"','"+deviceIP+"','"+deviceType+"','"+deviceTag+"')";
-                PreparedStatement ps = con.prepareStatement(sql);
-                ps.executeUpdate(sql);
-//            st = con.createStatement();
-//            int value = st
-//                    .executeUpdate("INSERT INTO AddedDevices(deviceName,deviceIP,deviceType,deviceTag)"
-//                            + "VALUES('"
-//                            + deviceName
-//                            + "','"
-//                            + deviceIP
-//                            + "','"
-//                            + deviceType
-//                            + "','"
-//                            + deviceTag
-//                            +
-//                            "')");
+                PreparedStatement preparedStatementObj = con.prepareStatement(sql);
+                preparedStatementObj.executeUpdate(sql);
+
         } catch (SQLException ex) {
             ex.printStackTrace();
             response = ex.getMessage();
@@ -42,20 +30,22 @@ public class AddDeviceExecutor extends ActionSupport {
         } catch (Exception ex1) {
             ex1.printStackTrace();
         } finally {
-            if (st != null) {
-                st.close();
+            try
+            {
+                if (con != null) {
+                    con.close();
+                }
             }
-            if (con != null) {
-                con.close();
+            catch (Exception exception){
+                exception.printStackTrace();
             }
+
         }
         if (response != null) {
             if (response.contains("Duplicate entry")) {
-//                return "Device already added";
                 return new ByteArrayInputStream("Device already Added".getBytes());
             } else {
                 return new ByteArrayInputStream("Device Added".getBytes());
-//        return "Device Added";
             }
         }
         return new ByteArrayInputStream("Device Added".getBytes());

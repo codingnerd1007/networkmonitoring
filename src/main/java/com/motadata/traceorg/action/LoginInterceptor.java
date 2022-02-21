@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class LoginInterceptor implements Interceptor
 {
-    private final String[] _allowedURLs = {"checkPlugin","selectcategory","fetchConstraintName","addConstraintName","selectSubTiles","getAllDetail","getPluginType","getAllDteailsOFPlugins","showPluginVersionDetails","getAllUserPluginDetails","login.jsp","login","logout"};
-
+//    private final String[] _allowedURLs = {"checkPlugin","selectcategory","fetchConstraintName","addConstraintName","selectSubTiles","getAllDetail","getPluginType","getAllDteailsOFPlugins","showPluginVersionDetails","getAllUserPluginDetails","login.jsp","login","logout"};
+    private final String[] _allowedURLs={"/loginValidation"};
     public void destroy() {
 
     }
@@ -47,7 +47,7 @@ public class LoginInterceptor implements Interceptor
 
             for (String url: _allowedURLs)
             {
-                if(requestURL.contains(url))
+                if(requestURL.equals(url))
                 {
                     invocation.invoke();
 

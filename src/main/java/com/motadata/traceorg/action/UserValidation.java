@@ -6,17 +6,13 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 import org.apache.struts2.interceptor.SessionAware;
 
-
-import java.util.HashMap;
 import java.util.Map;
-
 
 public class UserValidation extends ActionSupport implements SessionAware, ModelDriven<LoginModel> {
 
     private Map session;
 
     private static LoginModel loginModel = new LoginModel();
-
 
     public String toLogin() throws Exception{
 

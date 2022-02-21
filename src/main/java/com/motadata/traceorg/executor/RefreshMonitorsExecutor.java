@@ -14,10 +14,10 @@ import static com.opensymphony.xwork2.Action.SUCCESS;
 
 public class RefreshMonitorsExecutor {
 
-    ResultSet rs = null;
+    ResultSet resultsetObj = null;
     NmsBeanMonitorStatus bean = null;
     List<NmsBeanMonitorStatus> beanList = null;
-//    Connection populateCon = null;
+
     GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
     public List<NmsBeanMonitorStatus> getBeanList() {
         return beanList;
@@ -28,7 +28,7 @@ public class RefreshMonitorsExecutor {
     }
 
 
-    public String refreshMonitorGridTable() throws Exception {
+    public String refreshMonitorGridTable(){
 
         Connection populateCon = null;
         try {
@@ -37,20 +37,20 @@ public class RefreshMonitorsExecutor {
 
 
             String sql = "SELECT deviceName,deviceIP,deviceType,deviceTag,status FROM Monitors";
-            PreparedStatement ps = populateCon.prepareStatement(sql);
-            rs = ps.executeQuery(sql);
+            PreparedStatement preparedStatementObj = populateCon.prepareStatement(sql);
+            resultsetObj = preparedStatementObj.executeQuery(sql);
 
 
             beanList = new ArrayList<NmsBeanMonitorStatus>();
 
-            if (rs != null) {
-                while (rs.next()) {
+            if (resultsetObj != null) {
+                while (resultsetObj.next()) {
                     bean = new NmsBeanMonitorStatus();
-                    bean.setDeviceName(rs.getString("deviceName"));
-                    bean.setDeviceIP(rs.getString("deviceIP"));
-                    bean.setDeviceType(rs.getString("deviceType"));
-                    bean.setDeviceTag(rs.getString("deviceTag"));
-                    bean.setDeviceTag(rs.getString("status"));
+                    bean.setDeviceName(resultsetObj.getString("deviceName"));
+                    bean.setDeviceIP(resultsetObj.getString("deviceIP"));
+                    bean.setDeviceType(resultsetObj.getString("deviceType"));
+                    bean.setDeviceTag(resultsetObj.getString("deviceTag"));
+                    bean.setDeviceTag(resultsetObj.getString("status"));
                     beanList.add(bean);
                 }
             }
@@ -58,7 +58,14 @@ public class RefreshMonitorsExecutor {
             e.printStackTrace();
         } finally {
             if (populateCon != null) {
-                populateCon.close();
+                try
+                {
+                    populateCon.close();
+                }
+                catch (Exception populateConException)
+                {
+                    populateConException.printStackTrace();
+                }
             }
         }
         return SUCCESS;

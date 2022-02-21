@@ -9,10 +9,10 @@ public class PollingUtil
     private static final Thread[] threads=new Thread[16];
     public static void initPollingThreads()
     {
-        for(int i=0;i<16;i++)
+        for(int iterator=0;iterator<16;iterator++)
         {
-            threads[i]=new Thread(new PollingExec());
-            threads[i].start();
+            threads[iterator]=new Thread(new PollingExec());
+            threads[iterator].start();
         }
     }
     public static void putPollRequest(HashMap<String,String> request)

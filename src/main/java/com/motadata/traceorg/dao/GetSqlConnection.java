@@ -3,11 +3,17 @@ package com.motadata.traceorg.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+
+
 public class GetSqlConnection {
-    public GetSqlConnection() {
-        try {
+    static
+    {
+        try
+        {
             Class.forName("com.mysql.jdbc.Driver");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }

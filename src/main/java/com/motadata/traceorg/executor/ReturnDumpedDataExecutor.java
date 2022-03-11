@@ -9,6 +9,7 @@ import com.motadata.traceorg.dao.GetSqlConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,69 +19,73 @@ public class ReturnDumpedDataExecutor {
     NmsDashboardBean bean = null;
     List<NmsDashboardBean> beanList = null;
     GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
-//    Connection populateCon = null;
-    ResultSet rs = null;
+    ResultSet resultsetObj = null;
 
-    public String retriveDumpedData() throws Exception {
+    public String retriveDumpedData(){
         Connection populateCon=null;
         try {
             String sql;
-            PreparedStatement ps;
-//            GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
-            populateCon = getSqlConnectionObj.getCon();
+            PreparedStatement preparedStatementObj;
 
+            populateCon = getSqlConnectionObj.getCon();
 
             beanList = new ArrayList<NmsDashboardBean>();
             bean = new NmsDashboardBean();
 
 
             sql = "SELECT distinct count(deviceIP) as total FROM NMS.Monitors;";
-            ps = populateCon.prepareStatement(sql);
-            rs = ps.executeQuery(sql);
+            preparedStatementObj = populateCon.prepareStatement(sql);
+            resultsetObj = preparedStatementObj.executeQuery(sql);
 
 
-            if (rs != null) {
-                while (rs.next())
-                    bean.setTotal(rs.getString("total"));
+            if (resultsetObj != null) {
+                while (resultsetObj.next())
+                    bean.setTotal(resultsetObj.getString("total"));
             }
 
 
             sql = "SELECT count(status) as active FROM NMS.Monitors where status='up';";
-            ps = populateCon.prepareStatement(sql);
-            rs = ps.executeQuery(sql);
+            preparedStatementObj = populateCon.prepareStatement(sql);
+            resultsetObj = preparedStatementObj.executeQuery(sql);
 
 
-            if (rs != null) {
-                while (rs.next())
-                    bean.setActive(rs.getString("active"));
+            if (resultsetObj != null) {
+                while (resultsetObj.next())
+                    bean.setActive(resultsetObj.getString("active"));
             }
 
 
             sql = "SELECT count(status) as unknown FROM NMS.Monitors where status='unknown';";
-            ps = populateCon.prepareStatement(sql);
-            rs = ps.executeQuery(sql);
+            preparedStatementObj = populateCon.prepareStatement(sql);
+            resultsetObj = preparedStatementObj.executeQuery(sql);
 
 
-            if (rs != null) {
-                while (rs.next())
-                    bean.setUnknown(rs.getString("unknown"));
+            if (resultsetObj != null) {
+                while (resultsetObj.next())
+                    bean.setUnknown(resultsetObj.getString("unknown"));
             }
 
 
             sql = "SELECT count(status) as inactive FROM NMS.Monitors where status='down';";
-            ps = populateCon.prepareStatement(sql);
-            rs = ps.executeQuery(sql);
+            preparedStatementObj = populateCon.prepareStatement(sql);
+            resultsetObj = preparedStatementObj.executeQuery(sql);
 
 
-            if (rs != null) {
-                while (rs.next())
-                    bean.setInactive(rs.getString("inactive"));
+            if (resultsetObj != null) {
+                while (resultsetObj.next())
+                    bean.setInactive(resultsetObj.getString("inactive"));
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (populateCon != null) {
-                populateCon.close();
+                try
+                {
+                    populateCon.close();
+                } catch (SQLException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
         beanList.add(bean);

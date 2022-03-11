@@ -15,7 +15,7 @@ public class ReturnMemoryData extends ActionSupport {
     private NMSMemoryDataBean bean=null;
     private static List<NMSMemoryDataBean> beanList=null;
     Connection populateCon=null;
-    ResultSet rs=null;
+    ResultSet resultsetObj=null;
 
     public static void setBeanList(List<NMSMemoryDataBean> beanList) {
         ReturnMemoryData.beanList = beanList;

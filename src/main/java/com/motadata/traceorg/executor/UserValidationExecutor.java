@@ -8,6 +8,7 @@ import com.motadata.traceorg.dao.LoginModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,24 +16,23 @@ public class UserValidationExecutor {
     private Map<String, String> credentials = new HashMap<>();
     GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
 //    Connection populateCon = null;
-    ResultSet rs = null;
+    ResultSet resultsetObj = null;
 
-    public String checkCredentials(LoginModel loginModel, Map<String, Object> session) throws Exception {
+    public String checkCredentials(LoginModel loginModel, Map<String, Object> session) {
         Connection populateCon = null;
         boolean flg=false;
         try {
-//            GetSqlConnection getSqlConnectionObj = new GetSqlConnection();
+
             populateCon = getSqlConnectionObj.getCon();
             HashMap<String,String> result = new HashMap<>();
             result.put("validLogin","false");
 
             String sql = "SELECT * FROM Users where username= '"+ loginModel.getUserName()+"' and password = '"+loginModel.getPassword()+"'";
-            PreparedStatement ps = populateCon.prepareStatement(sql);
-            rs = ps.executeQuery(sql);
+            PreparedStatement preparedStatementObj = populateCon.prepareStatement(sql);
+            resultsetObj = preparedStatementObj.executeQuery(sql);
 
-
-            if (rs != null) {
-                while (rs.next()) {
+            if (resultsetObj != null) {
+                while (resultsetObj.next()) {
                     session.put("user-session",loginModel);
                     result.put("validLogin","true");
                     flg=true;
@@ -43,7 +43,13 @@ public class UserValidationExecutor {
             e.printStackTrace();
         } finally {
             if (populateCon != null) {
-                populateCon.close();
+                try
+                {
+                    populateCon.close();
+                } catch (SQLException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
         if(flg){
@@ -55,6 +61,8 @@ public class UserValidationExecutor {
     }
     public String removeSession(LoginModel loginModel, Map<String, Object> session){
         session.remove("user-session");
+        loginModel.setUserName(null);
+        loginModel.setPassword(null);
         return "success";
     }
 
